@@ -4,9 +4,34 @@
     <header
       class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200"
     >
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">Spring Boot OAuth2 Dashboard</h1>
-        <p class="text-slate-500 text-sm">Testing Auth & API Server Endpoints via httpResource()</p>
+      <div class="flex items-center gap-8">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">Spring Boot OAuth2 Dashboard</h1>
+          <p class="text-slate-500 text-sm">
+            Testing Auth & API Server Endpoints via httpResource()
+          </p>
+        </div>
+
+        <!-- Active Navigation with Exact Match Option -->
+        <nav class="flex items-center gap-3">
+          <a
+            routerLink="/"
+            routerLinkActive="!bg-blue-600 !text-white"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="px-3.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold rounded-lg transition-all"
+          >
+            Dashboard
+          </a>
+          @if (authService.isAuthenticated()) {
+            <a
+              routerLink="/individuals"
+              routerLinkActive="!bg-blue-600 !text-white"
+              class="px-3.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold rounded-lg transition-all"
+            >
+              Individuals CRUD
+            </a>
+          }
+        </nav>
       </div>
 
       <div>
@@ -25,7 +50,7 @@
           </div>
         } @else {
           <a
-            href="/login"
+            routerLink="/login"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors inline-block"
           >
             Sign In

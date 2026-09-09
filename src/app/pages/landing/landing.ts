@@ -3,11 +3,12 @@ import { httpResource } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
 import { AuthService } from '../../services/auth';
 import { environment } from '../../../environments/environment';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [JsonPipe],
+  imports: [JsonPipe, RouterLink, RouterLinkActive],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })
