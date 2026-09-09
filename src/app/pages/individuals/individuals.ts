@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IndividualService } from '../../services/individual';
@@ -14,22 +14,83 @@ import { Individual } from '../../models/individual.model';
 export class Individuals {
   public individualService = inject(IndividualService);
   public authService = inject(AuthService);
+  protected readonly Math = Math;
+
+  // Search Filter Signal
+  searchQuery = signal('');
+
+  // Pagination Signals
+  currentPage = signal(1);
+  pageSize = signal(5); // Show 5 items per page
+
+  // Computed Signal: Filtered List
+  filteredIndividuals = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const list = this.individualService.individuals.value() || [];
+
+    if (!query) return list;
+
+    return list.filter(
+      (item) =>
+        item.firstName?.toLowerCase().includes(query) ||
+        item.lastName?.toLowerCase().includes(query) ||
+        item.login?.toLowerCase().includes(query),
+    );
+  });
+
+  // Computed Signal: Total Pages
+  totalPages = computed(() => {
+    const totalItems = this.filteredIndividuals().length;
+    return Math.max(1, Math.ceil(totalItems / this.pageSize()));
+  });
+
+  // Computed Signal: Paginated Slice of Data
+  paginatedIndividuals = computed(() => {
+    const page = this.currentPage();
+    const size = this.pageSize();
+    const startIndex = (page - 1) * size;
+    return this.filteredIndividuals().slice(startIndex, startIndex + size);
+  });
 
   // Modal Signals
   isModalOpen = signal(false);
   isScopeModalOpen = signal(false);
-  isDeleteModalOpen = signal(false); // Delete Modal State
+  isDeleteModalOpen = signal(false);
   isEditing = signal(false);
 
   // Active Selection Signals
   selectedId = signal<number | null>(null);
-  selectedItemName = signal<string>(''); // Used for personalized modal text
+  selectedItemName = signal<string>('');
 
-  // Form Fields mapped to PERSON table schema
+  // Form Fields
   firstName = signal('');
   lastName = signal('');
   login = signal('');
   birthDate = signal('');
+
+  // Pagination Controls
+  onSearchChange(query: string) {
+    this.searchQuery.set(query);
+    this.currentPage.set(1); // Reset to first page on new search
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update((p) => p + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.update((p) => p - 1);
+    }
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
 
   openScopeModal() {
     this.individualService.checkScopes();
@@ -66,7 +127,6 @@ export class Individuals {
     this.isModalOpen.set(false);
   }
 
-  // Open Custom Delete Confirmation Modal
   confirmDelete(item: Individual) {
     if (!item.id) return;
     this.selectedId.set(item.id);
@@ -79,7 +139,6 @@ export class Individuals {
     this.selectedId.set(null);
   }
 
-  // Execute Deletion
   executeDelete() {
     const id = this.selectedId();
     if (id) {
