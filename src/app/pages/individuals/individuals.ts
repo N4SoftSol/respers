@@ -8,7 +8,7 @@ import { Individual } from '../../models/individual.model';
 @Component({
   selector: 'app-individuals',
   standalone: true,
-  imports: [FormsModule, RouterLink, RouterLinkActive],
+  imports: [FormsModule],
   templateUrl: './individuals.html',
 })
 export class Individuals {
@@ -21,7 +21,13 @@ export class Individuals {
 
   // Pagination Signals
   currentPage = signal(1);
-  pageSize = signal(5); // Show 5 items per page
+  pageSize = signal(10); // Default to 10 entries like TailAdmin
+
+  // Handle Page Size Dropdown Change
+  onPageSizeChange(newSize: number) {
+    this.pageSize.set(Number(newSize));
+    this.currentPage.set(1); // Reset to Page 1 when size changes
+  }
 
   // Computed Signal: Filtered List
   filteredIndividuals = computed(() => {

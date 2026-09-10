@@ -1,8 +1,303 @@
-<!-- <div class="min-h-screen bg-slate-100 flex items-center justify-center">
-  <div class="bg-white shadow-lg rounded-xl p-8">
-    <h1 class="text-4xl font-bold text-blue-600">Angular 22 + Tailwind CSS</h1>
+<div
+  class="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200 flex"
+>
+  <!-- COLLAPSIBLE LEFT SIDEBAR -->
+  <aside
+    [class.w-64]="!themeService.isSidebarCollapsed()"
+    [class.w-20]="themeService.isSidebarCollapsed()"
+    class="bg-slate-900 dark:bg-slate-950 text-slate-300 min-h-screen transition-all duration-300 flex flex-col z-30 border-r border-slate-800"
+  >
+    <div class="h-16 flex items-center justify-between px-4 border-b border-slate-800">
+      <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap">
+        <span class="p-2 bg-blue-600 text-white font-bold rounded-lg text-sm">TA</span>
+        @if (!themeService.isSidebarCollapsed()) {
+          <span class="font-bold text-lg text-white tracking-wide">Angular Project</span>
+        }
+      </div>
+      <button
+        (click)="themeService.toggleSidebar()"
+        class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+      >
+        <span class="text-sm">☰</span>
+      </button>
+    </div>
 
-    <p class="mt-4 text-gray-600">Tailwind is working successfully!</p>
+    <!-- <nav class="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
+      <div class="text-[10px] uppercase font-bold text-slate-500 px-3 mb-2 tracking-wider">
+        @if (!themeService.isSidebarCollapsed()) {
+          MENU
+        }
+      </div>
+
+      <a
+        routerLink="/"
+        routerLinkActive="!bg-blue-600 !text-white font-semibold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer text-xs"
+      >
+        <span class="text-base">📊</span>
+        @if (!themeService.isSidebarCollapsed()) {
+          <span>Dashboard</span>
+        }
+      </a>
+      <a
+        routerLink="/faqs"
+        routerLinkActive="!bg-blue-600 !text-white font-semibold"
+        class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer text-xs"
+      >
+        <span class="text-base">❓</span>
+        @if (!themeService.isSidebarCollapsed()) {
+          <span>Faqs</span>
+        }
+      </a>
+
+      @if (authService.isAuthenticated()) {
+        <a
+          routerLink="/individuals"
+          routerLinkActive="!bg-blue-600 !text-white font-semibold"
+          class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer text-xs"
+        >
+          <span class="text-base">👥</span>
+          @if (!themeService.isSidebarCollapsed()) {
+            <span>Individuals CRUD</span>
+          }
+        </a>
+      }
+    </nav> -->
+    <!-- Navigation Menu Items -->
+    <nav class="flex-1 px-3 py-6 space-y-4 overflow-y-auto">
+      <!-- Public Navigation (Dashboard, Pages -> Faqs) -->
+      <app-public-nav></app-public-nav>
+
+      <!-- Authenticated Domain Navigation -->
+      @if (authService.isAuthenticated()) {
+        <app-auth-nav></app-auth-nav>
+      }
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- TOP HEADER -->
+    <header
+      class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between sticky top-0 z-20 transition-colors"
+    >
+      <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-100">
+        Spring Boot OAuth2 Domain Portal
+      </h2>
+
+      <!-- Actions: Theme + User Avatar OR Sign In -->
+      <div class="flex items-center gap-4">
+        <button
+          (click)="themeService.toggleDarkMode()"
+          class="p-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-lg transition-colors cursor-pointer text-xs font-semibold"
+        >
+          <span>{{ themeService.isDarkMode() ? '☀️ Light' : '🌙 Dark' }}</span>
+        </button>
+
+        @if (authService.currentUser(); as user) {
+          <div class="relative">
+            <button
+              (click)="toggleUserDropdown()"
+              class="flex items-center gap-3 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+            >
+              <div
+                class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs uppercase"
+              >
+                {{ (user.displayName || 'U').charAt(0) }}
+              </div>
+              <div class="text-left hidden sm:block">
+                <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-none">
+                  {{ user.displayName }}
+                </p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  {{ user.email }}
+                </p>
+              </div>
+              <span class="text-xs text-slate-400">▾</span>
+            </button>
+
+            @if (isUserDropdownOpen()) {
+              <div
+                class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50"
+              >
+                <button
+                  (click)="openScopeModal()"
+                  class="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>🔍 Inspect Scopes</span>
+                </button>
+                <div class="border-t border-slate-100 dark:border-slate-700 my-1"></div>
+                <button
+                  (click)="authService.logout()"
+                  class="w-full text-left px-4 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer font-semibold"
+                >
+                  <span>🚪 Logout</span>
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <button
+            (click)="openLoginModal()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-2"
+          >
+            <span>🔑 Sign In</span>
+          </button>
+        }
+      </div>
+    </header>
+
+    <!-- ROUTER CONTENT -->
+    <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </main>
   </div>
-</div> -->
-<router-outlet />
+</div>
+
+<!-- SIGN IN MODAL -->
+@if (isLoginModalOpen()) {
+  <div
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-700"
+    >
+      <div
+        class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3"
+      >
+        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Portal Login</h3>
+        <button
+          (click)="closeLoginModal()"
+          class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg cursor-pointer"
+        >
+          &times;
+        </button>
+      </div>
+
+      <form (submit)="executeLogin(); $event.preventDefault()" class="space-y-3">
+        @if (loginError()) {
+          <div
+            class="p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-600 dark:text-red-300"
+          >
+            {{ loginError() }}
+          </div>
+        }
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+            >Username / Login</label
+          >
+          <input
+            type="text"
+            [ngModel]="loginUsername()"
+            (ngModelChange)="loginUsername.set($event)"
+            name="username"
+            required
+            placeholder="e.g. ewatson, asmith, itaylor"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+            >Password</label
+          >
+          <input
+            type="password"
+            [ngModel]="loginPassword()"
+            (ngModelChange)="loginPassword.set($event)"
+            name="password"
+            required
+            placeholder="••••••••"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3">
+          <button
+            type="button"
+            (click)="closeLoginModal()"
+            class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+          >
+            Sign In
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- GLOBAL SCOPES MODAL -->
+@if (isScopeModalOpen()) {
+  <div
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4 border border-slate-200 dark:border-slate-700"
+    >
+      <div
+        class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3"
+      >
+        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">
+          User Authorities & Scopes (/whoami)
+        </h3>
+        <button
+          (click)="closeScopeModal()"
+          class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg cursor-pointer"
+        >
+          &times;
+        </button>
+      </div>
+
+      @if (individualService.whoAmI.value(); as who) {
+        <div class="space-y-3">
+          <div
+            class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700"
+          >
+            <p
+              class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1"
+            >
+              Authenticated Principal
+            </p>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ who.name }}</p>
+          </div>
+
+          <div
+            class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700"
+          >
+            <p
+              class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2"
+            >
+              Granted Authorities
+            </p>
+            <div class="flex flex-wrap gap-2">
+              @for (auth of who.authorities; track auth) {
+                <span
+                  class="px-3 py-1 text-xs font-bold rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                >
+                  {{ auth }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="flex justify-end pt-2">
+        <button
+          (click)="closeScopeModal()"
+          class="px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -69,6 +69,7 @@ export class AuthService {
     });
   }
 
+  // Programmatic Login for Credentials Form
   login(credentials: { username: string; password: string }) {
     return this.http.post<AuthResponse>(`${this.baseUrl}/api/auth/login`, credentials).pipe(
       tap((res) => {
@@ -76,6 +77,11 @@ export class AuthService {
         this.router.navigate(['/']);
       }),
     );
+  }
+
+  // Redirect Helper for OAuth Server (Separate method)
+  redirectToAuthServer() {
+    window.location.href = `${environment.authBaseUrl}/oauth2/authorization/gateway`;
   }
 
   logout() {

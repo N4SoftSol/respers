@@ -1,210 +1,113 @@
-<div class="min-h-screen bg-slate-100 p-8 font-sans">
-  <div class="max-w-7xl mx-auto space-y-8">
-    <!-- Top Navigation Header -->
-    <header
-      class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200"
-    >
-      <div class="flex items-center gap-8">
-        <div>
-          <h1 class="text-2xl font-bold text-slate-900">Spring Boot OAuth2 Dashboard</h1>
-          <p class="text-slate-500 text-sm">
-            Testing Auth & API Server Endpoints via httpResource()
-          </p>
-        </div>
-
-        <!-- Active Navigation with Exact Match Option -->
-        <nav class="flex items-center gap-3">
-          <a
-            routerLink="/"
-            routerLinkActive="!bg-blue-600 !text-white"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="px-3.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold rounded-lg transition-all"
-          >
-            Dashboard
-          </a>
-          @if (authService.isAuthenticated()) {
-            <a
-              routerLink="/individuals"
-              routerLinkActive="!bg-blue-600 !text-white"
-              class="px-3.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold rounded-lg transition-all"
-            >
-              Individuals CRUD
-            </a>
-          }
-        </nav>
-      </div>
-
-      <div>
-        @if (authService.currentUser(); as user) {
-          <div class="flex items-center gap-4">
-            <div class="text-right">
-              <p class="text-sm font-semibold text-slate-800">{{ user.displayName }}</p>
-              <p class="text-xs text-slate-500">{{ user.email }}</p>
-            </div>
-            <button
-              (click)="authService.logout()"
-              class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-            >
-              Logout
-            </button>
-          </div>
-        } @else {
-          <a
-            routerLink="/login"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors inline-block"
-          >
-            Sign In
-          </a>
-        }
-      </div>
-    </header>
-
-    <!-- SECTION 1: AUTH SERVER ENDPOINTS -->
-    <section class="space-y-4">
-      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-        <span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
-        <h2 class="text-xl font-bold text-slate-800">
-          Auth Server (authjsb.restapi.n4softsol.com)
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Public Info -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3">
-            GET /api/public/info
-          </h3>
-          @if (authpublicInfo.isLoading()) {
-            <p class="text-slate-400 text-xs animate-pulse">Loading...</p>
-          } @else if (authpublicInfo.value(); as info) {
-            <pre
-              class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-              >{{ info | json }}</pre>
-          }
-        </div>
-
-        <!-- Actuator Info -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3">
-            GET /actuator/info
-          </h3>
-          @if (authactuatorInfo.isLoading()) {
-            <p class="text-slate-400 text-xs animate-pulse">Loading...</p>
-          } @else if (authactuatorInfo.value(); as actInfo) {
-            <pre
-              class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-              >{{ actInfo | json }}</pre>
-          }
-        </div>
-
-        <!-- Actuator Health -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-3">
-            GET /actuator/health
-          </h3>
-          @if (authactuatorHealth.isLoading()) {
-            <p class="text-slate-400 text-xs animate-pulse">Loading...</p>
-          } @else if (authactuatorHealth.value(); as health) {
-            <span
-              class="inline-block mb-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"
-            >
-              {{ health.status }}
-            </span>
-            <pre
-              class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-              >{{ health | json }}</pre>
-          }
-        </div>
-
-        <!-- Protected Metrics (Auth Server) - ENTIRE CONTAINER INSIDE @if -->
-        @if (authService.isAuthenticated()) {
-          <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-600 mb-3">
-              GET /actuator/metrics (Protected)
-            </h3>
-            @if (authactuatorMetrics.isLoading()) {
-              <p class="text-slate-400 text-xs animate-pulse">Loading auth metrics...</p>
-            } @else if (authactuatorMetrics.value(); as metrics) {
-              <pre
-                class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-                >{{ metrics | json }}</pre>
-            }
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- SECTION 2: API SERVER ENDPOINTS -->
-    <section class="space-y-4">
-      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-        <span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span>
-        <h2 class="text-xl font-bold text-slate-800">API Server (perjsb.restapi.n4softsol.com)</h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Public Info -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3">
-            GET /api/public/info
-          </h3>
-          @if (apipublicInfo.isLoading()) {
-            <p class="text-slate-400 text-xs animate-pulse">Loading...</p>
-          } @else if (apipublicInfo.value(); as info) {
-            <pre
-              class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-              >{{ info | json }}</pre>
-          }
-        </div>
-
-        <!-- Actuator Info -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3">
-            GET /actuator/info
-          </h3>
-          @if (apiactuatorInfo.isLoading()) {
-            <p class="text-slate-400 text-xs animate-pulse">Loading...</p>
-          } @else if (apiactuatorInfo.value(); as actInfo) {
-            <pre
-              class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-              >{{ actInfo | json }}</pre>
-          }
-        </div>
-
-        <!-- Actuator Health -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-3">
-            GET /actuator/health
-          </h3>
-          @if (apiactuatorHealth.isLoading()) {
-            <p class="text-slate-400 text-xs animate-pulse">Loading...</p>
-          } @else if (apiactuatorHealth.value(); as health) {
-            <span
-              class="inline-block mb-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"
-            >
-              {{ health.status }}
-            </span>
-            <pre
-              class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-              >{{ health | json }}</pre>
-          }
-        </div>
-
-        <!-- Protected Metrics (API Server) - ENTIRE CONTAINER INSIDE @if -->
-        @if (authService.isAuthenticated()) {
-          <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-600 mb-3">
-              GET /actuator/metrics (Protected)
-            </h3>
-            @if (apiactuatorMetrics.isLoading()) {
-              <p class="text-slate-400 text-xs animate-pulse">Loading API metrics...</p>
-            } @else if (apiactuatorMetrics.value(); as metrics) {
-              <pre
-                class="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-x-auto max-h-56"
-                >{{ metrics | json }}</pre>
-            }
-          </div>
-        }
-      </div>
-    </section>
+<div class="space-y-8">
+  <!-- Page Header -->
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
+      Spring Boot OAuth2 Dashboard
+    </h1>
+    <p class="text-slate-500 dark:text-slate-400 text-sm">
+      Testing Auth & API Server Endpoints via httpResource()
+    </p>
   </div>
+
+  <!-- Auth Server Section -->
+  <section class="space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="h-3 w-3 rounded-full bg-blue-600"></span>
+      <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+        Auth Server (authjsb.restapi.n4softsol.com)
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Public Info Card -->
+      <div
+        class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 transition-colors"
+      >
+        <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+          GET /api/public/info
+        </span>
+        <pre
+          class="bg-slate-900 dark:bg-slate-950 text-emerald-400 p-3 rounded-lg text-xs overflow-x-auto font-mono"
+        ><code>{{ authPublicInfo.value() | json }}</code></pre>
+      </div>
+
+      <!-- Actuator Info Card -->
+      <div
+        class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 transition-colors"
+      >
+        <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+          GET /actuator/info
+        </span>
+        <pre
+          class="bg-slate-900 dark:bg-slate-950 text-emerald-400 p-3 rounded-lg text-xs overflow-x-auto font-mono"
+        ><code>{{ authActuatorInfo.value() | json }}</code></pre>
+      </div>
+
+      <!-- Health Card -->
+      <div
+        class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 transition-colors"
+      >
+        <span
+          class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider"
+        >
+          GET /actuator/health
+        </span>
+        <pre
+          class="bg-slate-900 dark:bg-slate-950 text-emerald-400 p-3 rounded-lg text-xs overflow-x-auto font-mono"
+        ><code>{{ authHealth.value() | json }}</code></pre>
+      </div>
+
+      <!-- Metrics Card -->
+      <div
+        class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 transition-colors"
+      >
+        <span
+          class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider"
+        >
+          GET /actuator/metrics (Protected)
+        </span>
+        <pre
+          class="bg-slate-900 dark:bg-slate-950 text-emerald-400 p-3 rounded-lg text-xs overflow-x-auto font-mono"
+        ><code>{{ authMetrics.value() | json }}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- API Server Section -->
+  <section class="space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="h-3 w-3 rounded-full bg-emerald-500"></span>
+      <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200">
+        API Server (perjsb.restapi.n4softsol.com)
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- API Actuator Info -->
+      <div
+        class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 transition-colors"
+      >
+        <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+          GET /actuator/info
+        </span>
+        <pre
+          class="bg-slate-900 dark:bg-slate-950 text-emerald-400 p-3 rounded-lg text-xs overflow-x-auto font-mono"
+        ><code>{{ apiActuatorInfo.value() | json }}</code></pre>
+      </div>
+
+      <!-- API Health -->
+      <div
+        class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 transition-colors"
+      >
+        <span
+          class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider"
+        >
+          GET /actuator/health
+        </span>
+        <pre
+          class="bg-slate-900 dark:bg-slate-950 text-emerald-400 p-3 rounded-lg text-xs overflow-x-auto font-mono"
+        ><code>{{ apiHealth.value() | json }}</code></pre>
+      </div>
+    </div>
+  </section>
 </div>
