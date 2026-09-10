@@ -1,0 +1,129 @@
+<div class="space-y-6 max-w-5xl">
+  <!-- Page Header -->
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
+      Database & System Maintenance
+    </h1>
+    <p class="text-slate-500 dark:text-slate-400 text-sm">
+      Execute administrative stored procedures and database re-seeding operations
+    </p>
+  </div>
+
+  <!-- Status Feedback Banner -->
+  @if (lastResponse(); as res) {
+    <div
+      class="p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-200"
+    >
+      <div class="flex items-center gap-3">
+        <span class="text-base">✅</span>
+        <div>
+          <p class="font-bold">Status: {{ res.status }}</p>
+          <p>{{ res.message }}</p>
+        </div>
+      </div>
+      <button
+        (click)="lastResponse.set(null)"
+        class="text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold"
+      >
+        &times;
+      </button>
+    </div>
+  }
+
+  @if (lastError(); as err) {
+    <div
+      class="p-4 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-xl flex items-center justify-between text-xs text-red-800 dark:text-red-200"
+    >
+      <div class="flex items-center gap-3">
+        <span class="text-base">❌</span>
+        <div>
+          <p class="font-bold">Execution Failed</p>
+          <p>{{ err }}</p>
+        </div>
+      </div>
+      <button
+        (click)="lastError.set(null)"
+        class="text-red-500 hover:text-red-700 dark:hover:text-red-300 font-bold"
+      >
+        &times;
+      </button>
+    </div>
+  }
+
+  <!-- Stored Procedure Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    @for (proc of procedures; track proc.id) {
+      <div
+        class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm flex flex-col justify-between space-y-4"
+      >
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider font-mono"
+              >POST {{ proc.endpoint }}</span
+            >
+            <span class="h-2 w-2 rounded-full" [ngClass]="proc.badgeColor"></span>
+          </div>
+          <h3 class="text-base font-bold text-slate-800 dark:text-slate-100">{{ proc.title }}</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            {{ proc.description }}
+          </p>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex justify-end">
+          <button
+            (click)="confirmExecution(proc)"
+            [disabled]="isExecuting()"
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-2"
+          >
+            <span>⚡ Execute Procedure</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- EXECUTION CONFIRMATION MODAL -->
+@if (isConfirmModalOpen() && selectedProc(); as proc) {
+  <div
+    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-slate-700"
+    >
+      <div class="flex items-center gap-3 text-amber-600 dark:text-amber-400">
+        <div class="p-2 bg-amber-100 dark:bg-amber-950/50 rounded-full">
+          <span class="text-xl">⚠️</span>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Confirm Procedure Run</h3>
+      </div>
+
+      <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        Are you sure you want to run
+        <strong class="text-slate-900 dark:text-slate-100">{{ proc.title }}</strong
+        >? This will trigger stored procedure logic on the Spring Boot database environment.
+      </p>
+
+      <div class="flex justify-end gap-2 pt-3">
+        <button
+          (click)="closeConfirmModal()"
+          [disabled]="isExecuting()"
+          class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="runProcedure()"
+          [disabled]="isExecuting()"
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-2"
+        >
+          @if (isExecuting()) {
+            <span class="animate-spin">⏳</span> Processing...
+          } @else {
+            Run Now
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
