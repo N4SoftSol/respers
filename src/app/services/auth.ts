@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { CheckTokensResponse } from '../models/token-session.model';
 
 export interface AuthResponse {
   accessToken: string;
@@ -22,7 +23,7 @@ export interface UserProfile {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private baseUrl = environment.authBaseUrl;
+  private authBaseUrl = environment.authBaseUrl;
 
   // Primary Token Signals
   accessToken = signal<string | null>(localStorage.getItem('access_token'));
@@ -71,7 +72,7 @@ export class AuthService {
 
   // Programmatic Login for Credentials Form
   login(credentials: { username: string; password: string }) {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/api/auth/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.authBaseUrl}/api/auth/login`, credentials).pipe(
       tap((res) => {
         this.setTokens(res.accessToken, res.refreshToken);
         this.router.navigate(['/']);
@@ -87,7 +88,7 @@ export class AuthService {
   logout() {
     const token = this.refreshToken();
     if (token) {
-      this.http.post(`${this.baseUrl}/api/auth/logout`, { refreshToken: token }).subscribe();
+      this.http.post(`${this.authBaseUrl}/api/auth/logout`, { refreshToken: token }).subscribe();
     }
     this.clearTokens();
     this.router.navigate(['/login']);
@@ -107,7 +108,9 @@ export class AuthService {
         if (!token) throw new Error('No refresh token available');
 
         const res = await firstValueFrom(
-          this.http.post<AuthResponse>(`${this.baseUrl}/api/auth/refresh`, { refreshToken: token }),
+          this.http.post<AuthResponse>(`${this.authBaseUrl}/api/auth/refresh`, {
+            refreshToken: token,
+          }),
         );
 
         this.setTokens(res.accessToken, res.refreshToken);
@@ -136,5 +139,9 @@ export class AuthService {
     this.refreshToken.set(null);
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+  }
+
+  getValidTokens() {
+    return this.http.get<CheckTokensResponse>(`${environment.authBaseUrl}/api/auth/checktokens`);
   }
 }

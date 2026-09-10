@@ -5,6 +5,7 @@ import { Individuals } from './pages/individuals/individuals';
 import { authGuard } from './guards/auth-guard';
 import { Faqs } from './pages/faqs/faqs';
 import { DataManagement } from './pages/admin/dataManagement/data-management';
+import { ActiveTokens } from './pages/admin/active-tokens/active-tokens';
 
 export const routes: Routes = [
   { path: '', component: Landing },
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: 'individuals', component: Individuals, canActivate: [authGuard] },
   { path: 'faqs', component: Faqs },
   { path: 'admin/data-management', component: DataManagement },
+  { path: 'admin/tokens', component: ActiveTokens },
   { path: '**', redirectTo: '' },
 ];
