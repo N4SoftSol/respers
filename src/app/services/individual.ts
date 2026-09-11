@@ -32,16 +32,37 @@ export class IndividualService {
   });
 
   // Scope permissions
+  // hasWriteScope = computed(() => {
+  //   const authorities = this.whoAmI.value()?.authorities;
+  //   if (!authorities) return false;
+  //   return authorities.includes('SCOPE_write') || authorities.includes('SCOPE_admin');
+  // });
+
+  // Scope permissions
   hasWriteScope = computed(() => {
-    const authorities = this.whoAmI.value()?.authorities;
-    if (!authorities) return false;
-    return authorities.includes('SCOPE_write') || authorities.includes('SCOPE_admin');
+    const authorities = this.whoAmI.value()?.authorities || [];
+    return authorities.some(
+      (auth) =>
+        auth === 'SCOPE_write' ||
+        auth === 'SCOPE_admin' ||
+        auth === 'ROLE_ADMIN' ||
+        auth.includes('IT-API_CONTRIBUTORS') ||
+        auth.includes('IT-API_ADMIN'),
+    );
   });
 
+  // hasAdminScope = computed(() => {
+  //   const authorities = this.whoAmI.value()?.authorities;
+  //   if (!authorities) return false;
+  //   return authorities.includes('SCOPE_admin');
+  // });
+
+  // AdminScope
   hasAdminScope = computed(() => {
-    const authorities = this.whoAmI.value()?.authorities;
-    if (!authorities) return false;
-    return authorities.includes('SCOPE_admin');
+    const authorities = this.whoAmI.value()?.authorities || [];
+    return authorities.some(
+      (auth) => auth === 'SCOPE_admin' || auth === 'ROLE_ADMIN' || auth.includes('IT-API_ADMIN'),
+    );
   });
 
   checkScopes() {
