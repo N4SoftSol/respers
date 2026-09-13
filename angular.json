@@ -19,17 +19,33 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              "src/favicon.ico",
+              "src/assets",
               {
-                "glob": "**/*",
-                "input": "public"
+                "glob": "info.json",
+                "input": "src/api-info/dev/",
+                "output": "/api/public/"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                {
+                  "glob": "info.json",
+                  "input": "src/api-info/prod/",
+                  "output": "/api/public/"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
