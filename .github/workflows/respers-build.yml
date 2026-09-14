@@ -15,11 +15,6 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Verify Node
-        run: |
-          node -v
-          npm -v
-
       - name: Install Dependencies
         run: |
           npm ci

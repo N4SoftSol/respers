@@ -3,7 +3,7 @@ export const environment = {
   authBaseUrl: 'https://authjsb.restapi.n4softsol.com',
   apiBaseUrl: 'https://persjsb.restapi.n4softsol.com',
   appInfo: {
-    gitUpdate: '1.4',
+    gitUpdate: '1.5',
     application: 'apps-angular-respers',
     profiles: ['prd'],
   },

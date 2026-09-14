@@ -10,7 +10,7 @@ export const environment = {
   // apiBaseUrl: 'https://persjsb.restapi.n4softsol.com', // Spring Boot API base URL
 
   appInfo: {
-    gitUpdate: '1.4',
+    gitUpdate: '1.5',
     application: 'dev-apps-angular-respers',
     profiles: ['dev'], // Set to dev for the development environment
   },
