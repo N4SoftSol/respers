@@ -1,0 +1,50 @@
+name: Angular Build
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Build Angular
+        run: |
+          npm run build -- --configuration production
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Image
+        run: |
+          docker build \
+          -t naveenezone/respers:latest \
+          -t naveenezone/respers:${{ github.sha }} .
+
+      - name: Push Image
+        run: |
+          docker push naveenezone/respers:latest
+          docker push naveenezone/respers:${{ github.sha }}
+
+      - name: Deploy
+        run: |
+          cd /app/build/n4ss-respers
+          docker compose pull
+          docker compose up -d
