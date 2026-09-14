@@ -1,4 +1,4 @@
-name: Angular Build
+name: ResPers Build
 
 on:
   push:
@@ -8,15 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-deploy:
+  build-and-push:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Source
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      - name: Verify Node
+        run: |
+          node -v
+          npm -v
 
       - name: Install Dependencies
         run: |
@@ -26,25 +28,32 @@ jobs:
         run: |
           npm run build -- --configuration production
 
+      - name: Prepare Docker Assets
+        run: |
+          rm -rf app
+          mkdir app
+          cp -r dist/angular-auth-dashboard/browser/* app/
+
       - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Image
+      - name: Build Docker Image
         run: |
           docker build \
-          -t naveenezone/respers:latest \
-          -t naveenezone/respers:${{ github.sha }} .
+            -t naveenezone/respers:latest \
+            -t naveenezone/respers:${{ github.sha }} .
 
-      - name: Push Image
+      - name: Push Docker Image
         run: |
           docker push naveenezone/respers:latest
           docker push naveenezone/respers:${{ github.sha }}
-
       - name: Deploy
         run: |
           cd /app/build/n4ss-respers
+
           docker compose pull
+
           docker compose up -d
