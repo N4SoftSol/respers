@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, ubudoc01d]
 
     steps:
       - name: Checkout Source
