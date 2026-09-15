@@ -9,7 +9,8 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: [self-hosted, github-runner]
+    runs-on: [self-hosted, Linux, X64, github-runner]
+    
 
     steps:
       - name: Checkout Source
