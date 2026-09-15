@@ -9,11 +9,13 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: [self-hosted, github-runner]
 
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+        with:
+          clean: true
 
       - name: Install Dependencies
         run: |
@@ -45,10 +47,9 @@ jobs:
         run: |
           docker push naveenezone/respers:latest
           docker push naveenezone/respers:${{ github.sha }}
+
       - name: Deploy
         run: |
           cd /app/build/n4ss-respers
-
           docker compose pull
-
           docker compose up -d
